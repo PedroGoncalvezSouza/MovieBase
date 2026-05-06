@@ -3,11 +3,11 @@
 $filmes = [
     [
         "id" => 1,
-        "titulo" => "The Shawshank Redemption",
-        "ano" => 1994,
-        "genero" => "Drama",
-        "diretor" => "Frank Darabont",
-        "nota" => 9.3
+        "titulo" => "Maze Runner: The Scorch Trials",
+        "ano" => 2015,
+        "genero" => "Sci-Fi",
+        "diretor" => "Bryan Singer",
+        "nota" => 7.3
     ],
     [
         "id" => 2,
@@ -161,4 +161,13 @@ $filmes = [
         "diretor" => "Quentin Tarantino",
         "nota" => 8.4
     ],
+    [
+        "id" => 21,
+        "titulo" => "Percy Jackson & the Olympians: The Lightning Thief",
+        "ano" => 2010,
+        "genero" => "Aventura",
+        "diretor" => "Chris Columbus",
+        "nota" => 6.1
+    ],
 ];
+

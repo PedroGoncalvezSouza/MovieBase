@@ -155,11 +155,19 @@ $filmes = [
     ],
     [
         "id" => 20,
-        "titulo" => "Django Unchained",
-        "ano" => 2012,
-        "genero" => "Western",
-        "diretor" => "Quentin Tarantino",
-        "nota" => 8.4
+        "titulo" => "O Diabo Veste Prada",
+        "ano" => 2026,
+        "genero" => "Comédia dramatica",
+        "diretor" => "David Frankel",
+        "nota" => 9.0
+    ],
+    [
+        "id" => 21,
+        "titulo" => "Michael",
+        "ano" => 2026,
+        "genero" => "Drama musical",
+        "diretor" => "Antoine Fuqua",
+        "nota" => 9.5
     ],
     [
         "id" => 21,

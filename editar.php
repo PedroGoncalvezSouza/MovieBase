@@ -2,12 +2,23 @@
 session_start();
 require 'db.php';
 
+$id = (int)($_GET['id'] ?? $_POST['id'] ?? 0);
+
+$stmt = $pdo->prepare("SELECT * FROM filmes WHERE id = ?");
+$stmt->execute([$id]);
+$dados = $stmt->fetch();
+
+if (!$dados) {
+    header('Location: index.php');
+    exit;
+}
+
 $erros   = [];
-$dados   = ['titulo' => '', 'ano' => (int)date('Y'), 'genero' => '', 'diretor' => '', 'nota' => ''];
 $generos = $pdo->query("SELECT DISTINCT genero FROM filmes ORDER BY genero")->fetchAll(PDO::FETCH_COLUMN);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dados = [
+        'id'      => $id,
         'titulo'  => trim($_POST['titulo']  ?? ''),
         'ano'     => (int)($_POST['ano']    ?? 0),
         'genero'  => trim($_POST['genero']  ?? ''),
@@ -30,12 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($erros)) {
         $pdo->prepare(
-            "INSERT INTO filmes (titulo, ano, genero, diretor, nota) VALUES (?, ?, ?, ?, ?)"
-        )->execute([$dados['titulo'], $dados['ano'], $dados['genero'], $dados['diretor'], $nota]);
+            "UPDATE filmes SET titulo=?, ano=?, genero=?, diretor=?, nota=? WHERE id=?"
+        )->execute([$dados['titulo'], $dados['ano'], $dados['genero'], $dados['diretor'], $nota, $id]);
 
         $_SESSION['flash'] = [
             'tipo' => 'sucesso',
-            'msg'  => "Filme \"{$dados['titulo']}\" adicionado com sucesso!",
+            'msg'  => "Filme \"{$dados['titulo']}\" atualizado com sucesso!",
         ];
         header('Location: index.php');
         exit;
@@ -47,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MovieBase – Adicionar Filme</title>
+  <title>MovieBase – Editar Filme</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -56,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="header-inner">
     <div>
       <div class="logo">Movie<span>Base</span></div>
-      <p class="subtitulo">Adicionar novo filme</p>
+      <p class="subtitulo">Editar filme</p>
     </div>
     <a href="index.php" class="btn btn-voltar">← Voltar</a>
   </div>
@@ -64,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <main class="form-page">
   <div class="form-card">
-    <h1 class="form-titulo">🎬 Novo Filme</h1>
+    <h1 class="form-titulo">✏️ Editar Filme</h1>
 
     <?php if ($erros): ?>
       <div class="alert alert-erro">
@@ -74,13 +85,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     <?php endif; ?>
 
-    <form method="POST" action="criar.php">
+    <form method="POST" action="editar.php?id=<?= $id ?>">
+      <input type="hidden" name="id" value="<?= $id ?>">
 
       <div class="form-group">
         <label for="titulo">Título</label>
         <input class="form-input" type="text" id="titulo" name="titulo"
-               value="<?= htmlspecialchars($dados['titulo']) ?>"
-               placeholder="Ex: The Godfather" required autofocus>
+               value="<?= htmlspecialchars(trim($dados['titulo'])) ?>"
+               required autofocus>
       </div>
 
       <div class="form-row">
@@ -93,8 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="form-group">
           <label for="nota">Nota (0–10)</label>
           <input class="form-input" type="number" id="nota" name="nota"
-                 value="<?= htmlspecialchars($dados['nota']) ?>"
-                 min="0" max="10" step="0.1" placeholder="8.5" required>
+                 value="<?= number_format((float)$dados['nota'], 1) ?>"
+                 min="0" max="10" step="0.1" required>
         </div>
       </div>
 
@@ -102,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="genero">Gênero</label>
         <input class="form-input" type="text" id="genero" name="genero"
                value="<?= htmlspecialchars($dados['genero']) ?>"
-               list="generos-list" placeholder="Ex: Drama" required>
+               list="generos-list" required>
         <datalist id="generos-list">
           <?php foreach ($generos as $g): ?>
             <option value="<?= htmlspecialchars($g) ?>">
@@ -114,12 +126,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="diretor">Diretor</label>
         <input class="form-input" type="text" id="diretor" name="diretor"
                value="<?= htmlspecialchars($dados['diretor']) ?>"
-               placeholder="Ex: Christopher Nolan" required>
+               required>
       </div>
 
       <div class="form-actions">
         <a href="index.php" class="btn btn-voltar">Cancelar</a>
-        <button type="submit" class="btn btn-add">Salvar Filme</button>
+        <button type="submit" class="btn btn-add">Salvar Alterações</button>
       </div>
 
     </form>
